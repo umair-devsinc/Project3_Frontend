@@ -4,6 +4,9 @@ import ResponsiveAppBar from "./AppBar";
 import Box from '@mui/material/Box';
 
 
+
+//This Component is use to show the draft post
+
 const Draft=()=>{
     const [posts,setPosts]=useState([]);
     const [postRefresh,setPostRefresh]=useState(true);

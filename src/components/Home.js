@@ -22,6 +22,8 @@ import MailIcon from '@material-ui/icons/Mail';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 
+//This is home component consist of navbar posts(card) and create post button
+
 const Home=()=>{
     const style = {
         position: 'absolute',

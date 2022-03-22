@@ -5,6 +5,7 @@ function App() {
   return (
     <>
       <Routing/>
+      //React Router is used in routing component
     </>
   );
 }
