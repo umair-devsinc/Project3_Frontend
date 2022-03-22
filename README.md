@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+#Custom Comments
+    you can sign in to see posts on /home
+    you can update and delete the post 
+    click on the post settings to draft the post
+    from top right corner you can see darft or logout
+    from draft you can edit or delete or publish back the post
+    
+
 ## Available Scripts
 
 In the project directory, you can run:
