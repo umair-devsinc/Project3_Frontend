@@ -13,11 +13,8 @@ const Routing=()=>{
             <Route path='/signup' element={<SignUp/>}/>
             <Route path='/home' element={<Home/>}/>
             <Route path='/draft' element={<Draft/>}/>
-
-
-
-
         </Routes>
+
         </>
     )
 }

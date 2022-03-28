@@ -1,28 +1,31 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {useNavigate} from 'react-router-dom';
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
       <Link color="inherit" href="https://mui.com/">
         Your Website
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
@@ -30,28 +33,29 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignIn() {
-  const navigate=useNavigate();
+  
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const user={
-      email: data.get('email'),
-      password: data.get('password'),
-    }
+    const user = {
+      email: data.get("email"),
+      password: data.get("password"),
+    };
     console.log(user);
-    fetch(`http://localhost:5000/signIn?email=${user.email}&&password=${user.password}`,{ credentials: 'include'})
-    .then(response =>{ 
+    fetch(
+      `http://localhost:5000/signIn?email=${user.email}&&password=${user.password}`,
+      { credentials: "include" }
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then((data) => sessionStorage.setItem("id", data.id));
 
-      if(response.status===200)
-      { 
-        response.json().then(data=>sessionStorage.setItem('id',data.id));
-        
-        navigate("/home");
-      }
+          navigate("/home");
+        }
       })
-    .catch(err=>console.log(err));
+      .catch((err) => console.log(err));
   };
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -60,18 +64,23 @@ export default function SignIn() {
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ mt: 1 }}
+          >
             <TextField
               margin="normal"
               required
@@ -111,7 +120,13 @@ export default function SignIn() {
                 </Link>
               </Grid> */}
               <Grid item>
-                <Link href="#" variant="body2" onClick={()=>{navigate('/signup')}}>
+                <Link
+                  href="#"
+                  variant="body2"
+                  onClick={() => {
+                    navigate("/signup");
+                  }}
+                >
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

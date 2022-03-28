@@ -1,34 +1,32 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@material-ui/icons/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import {useNavigate} from 'react-router-dom';
-import { useCookies } from 'react-cookie';
-import { useEffect } from 'react';
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import MenuIcon from "@material-ui/icons/Menu";
+import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { useEffect } from "react";
 
-const pages = ['Products', 'Pricing', 'Blog'];
+const pages = ["Products", "Pricing", "Blog"];
 
 const ResponsiveAppBar = () => {
-
-  const [isLogin,setLogin]=React.useState(false);
-  const navigate=useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(['jwtoken']);
-
+  const navigate = useNavigate();
+  const [cookies] = useCookies(["jwtoken"]);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -40,15 +38,22 @@ const ResponsiveAppBar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  const logout=()=>{
+
+  const logout = () => {
+    fetch(`http://localhost:5000/logout`, {
+      method: "GET",
+    })
+    .catch((err) => console.log(err));
+
     console.log(cookies);
-    removeCookie('jwtoken');
-    sessionStorage.setItem('id',null)
-    navigate('/');
-  }
-  useEffect(()=>{
-    cookies.jwtoken?setLogin(true):setLogin(false)
-  },[]);
+    // removeCookie('jwtoken');
+    sessionStorage.setItem("id", null);
+    navigate("/");
+  };
+
+  useEffect(() => {
+
+  }, []);
 
   return (
     <AppBar position="fixed">
@@ -58,12 +63,12 @@ const ResponsiveAppBar = () => {
             variant="h6"
             noWrap
             component="div"
-            sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
+            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
           >
             LOGO
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -78,18 +83,18 @@ const ResponsiveAppBar = () => {
               id="menu-appbar"
               anchorEl={anchorElNav}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                vertical: "top",
+                horizontal: "left",
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: 'block', md: 'none' },
+                display: { xs: "block", md: "none" },
               }}
             >
               {pages.map((page) => (
@@ -103,53 +108,68 @@ const ResponsiveAppBar = () => {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
+            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
           >
             LOGO
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page}
               </Button>
             ))}
           </Box>
 
-            {cookies.jwtoken?
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-             <MenuItem key="Draft" onClick={()=>{handleCloseUserMenu();navigate('/draft');}}>
+          {cookies.jwtoken ? (
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuItem
+                  key="Draft"
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    navigate("/draft");
+                  }}
+                >
                   <Typography textAlign="center">Draft</Typography>
                 </MenuItem>
-               <MenuItem key="Logout" onClick={()=>{handleCloseUserMenu();logout();}}>
+                <MenuItem
+                  key="Logout"
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    logout();
+                  }}
+                >
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
-            </Menu>
-          </Box>:<div></div>}
+              </Menu>
+            </Box>
+          ) : (
+            <div></div>
+          )}
         </Toolbar>
       </Container>
     </AppBar>
