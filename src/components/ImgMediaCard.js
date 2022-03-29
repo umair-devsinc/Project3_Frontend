@@ -45,12 +45,11 @@ export default function ImgMediaCard(props) {
     handleClose();
 
     fetch(
-      `http://localhost:5000/${props.call == "home" ? "post" : "draftpost"}`,
+      `http://localhost:5000/${props.call == "home" ? "post" : "draftpost"}/${props.post.id}`,
       {
         method: "PUT",
 
         body: JSON.stringify({
-          id: props.post.id,
           title: title,
           content: content,
         }),
@@ -77,12 +76,8 @@ export default function ImgMediaCard(props) {
   };
 
   const draftPost = () => {
-    fetch(`http://localhost:5000/dPost`, {
+    fetch(`http://localhost:5000/dPost/${props.post.id}/${!props.post.flag}`, {
       method: "PUT",
-
-      body: JSON.stringify({
-        id: props.post.id,
-      }),
 
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -92,49 +87,6 @@ export default function ImgMediaCard(props) {
         props.setPostRefresh(!props.postRefresh);
       })
       .catch((err) => console.log(err));
-
-    //   props.call=="home"?
-    //   fetch("http://localhost:5000/draftpost", {
-
-    //     method: "POST",
-
-    //     body: JSON.stringify({
-    //         id:props.post.id,
-    //         title:props.post.title,
-    //         content: props.post.content,
-    //         uid: props.post.uid,
-
-    //     }),
-
-    //     headers: {
-    //         "Content-type": "application/json; charset=UTF-8"
-    //     }
-    // })
-
-    // .then(response => {
-    //   deletePost();
-    //   response.json();})
-    // .catch(err=>console.log(err)):
-    // fetch("http://localhost:5000/post", {
-
-    //   method: "POST",
-
-    //   body: JSON.stringify({
-    //       title:props.post.title,
-    //         content: props.post.content,
-    //         uid: props.post.uid,
-
-    //     }),
-
-    //     headers: {
-    //         "Content-type": "application/json; charset=UTF-8"
-    //     }
-    // })
-
-    // .then(response => {
-    //   deletePost();
-    //   response.json();})
-    // .catch(err=>console.log(err))
   };
 
   const [anchorEl, setAnchorEl] = React.useState(null);

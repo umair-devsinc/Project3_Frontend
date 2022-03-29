@@ -13,8 +13,6 @@ import ResponsiveAppBar from "./AppBar";
 
 
 
-//This is home component consist of navbar posts(card) and create post button
-
 const Home = () => {
   const style = {
     position: "absolute",
@@ -95,6 +93,7 @@ const Home = () => {
                 postRefresh={postRefresh}
                 setPostRefresh={setPostRefresh}
                 post={post}
+                key={post.id}
               ></ImgMediaCard>
             ))
           ) : (

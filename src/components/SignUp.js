@@ -62,9 +62,9 @@ export default function SignUp() {
         "Content-type": "application/json; charset=UTF-8",
       },
     })
-      .then((response) => response.json())
+    .then((response) => response.json())
 
-      .then((json) => console.log(json));
+      
   };
 
   return (
