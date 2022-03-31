@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import ImgMediaCard from "./ImgMediaCard";
 import ResponsiveAppBar from "./AppBar";
-import Box from "@mui/material/Box";
-
+import { Box } from "@mui/material";
+import { draftStyle } from "../style/Drafts";
 
 const Draft = () => {
   const [posts, setPosts] = useState([]);
@@ -20,28 +20,23 @@ const Draft = () => {
       .then((response) => {
         response.json().then((data) => setPosts([...data]));
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert(err));
   }, [postRefresh]);
 
-  useEffect(() => {
-    console.log(posts);
-  });
   return (
     <>
       <ResponsiveAppBar></ResponsiveAppBar>
-      <Box sx={{ marginTop: 10 }}>
-        {posts ? (
+      <Box sx={draftStyle}>
+        {posts &&
           posts.map((post) => (
             <ImgMediaCard
               call="draft"
               postRefresh={postRefresh}
               setPostRefresh={setPostRefresh}
               post={post}
+              key={post.id}
             ></ImgMediaCard>
-          ))
-        ) : (
-          <div>No Draft Posts</div>
-        )}
+          ))}
       </Box>
     </>
   );

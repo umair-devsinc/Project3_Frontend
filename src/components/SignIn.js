@@ -1,40 +1,39 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container,
+} from "@mui/material";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import { boxStyle, submitButtonStyle, avatarStyle } from "../style/SignUp";
+import Copyright from "../utils/Copyright";
 
 const theme = createTheme();
 
 export default function SignIn() {
-  
   const navigate = useNavigate();
+  const [errors, setErrors] = React.useState({ email: false, password: false });
+
+  const validation = (user) => {
+    user.email ? (errors.email = false) : (errors.email = true);
+    user.password ? (errors.password = false) : (errors.password = true);
+
+    setErrors({ ...errors });
+
+    if (Object.values(errors).find((e) => e === true)) {
+      return false;
+    } else {
+      return true;
+    }
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -42,34 +41,31 @@ export default function SignIn() {
       email: data.get("email"),
       password: data.get("password"),
     };
-    console.log(user);
-    fetch(
-      `http://localhost:5000/signIn?email=${user.email}&&password=${user.password}`,
-      { credentials: "include" }
-    )
-      .then((response) => {
-        if (response.status === 200) {
-          response.json().then((data) => sessionStorage.setItem("id", data.id));
+    validation(user) &&
+      fetch(
+        `http://localhost:5000/signIn?email=${user.email}&&password=${user.password}`,
+        { credentials: "include" }
+      )
+        .then((response) => {
+          if (response.status === 200) {
+            response
+              .json()
+              .then((data) => sessionStorage.setItem("id", data.id));
 
-          navigate("/home");
-        }
-      })
-      .catch((err) => console.log(err));
+            navigate("/home");
+          } else {
+            response.json().then((data) => alert(data.error));
+          }
+        })
+        .catch((err) => alert(err));
   };
 
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+        <Box sx={boxStyle}>
+          <Avatar sx={avatarStyle}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
@@ -89,6 +85,7 @@ export default function SignIn() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              error={errors.email}
               autoFocus
             />
             <TextField
@@ -99,19 +96,19 @@ export default function SignIn() {
               label="Password"
               type="password"
               id="password"
+              error={errors.password}
               autoComplete="current-password"
             />
-          
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={submitButtonStyle}
             >
               Sign In
             </Button>
             <Grid container justifyContent="flex-end">
-             
               <Grid item>
                 <Link
                   href="#"
@@ -126,7 +123,7 @@ export default function SignIn() {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <Copyright />
       </Container>
     </ThemeProvider>
   );

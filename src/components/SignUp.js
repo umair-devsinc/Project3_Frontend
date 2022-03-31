@@ -1,42 +1,52 @@
 import * as React from "react";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
+import { useState } from "react";
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container,
+  Avatar,
+} from "@mui/material";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import { Avatar } from "@mui/material";
-
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import Copyright from "../utils/Copyright";
+import {
+  boxStyle,
+  submitButtonStyle,
+  avatarStyle,
+  copyRightStyle,
+} from "../style/SignUp";
 
 const theme = createTheme();
 
 export default function SignUp() {
-
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    password: false,
+  });
 
+  const validation = (user) => {
+    user.firstName ? (errors.firstName = false) : (errors.firstName = true);
+    user.lastName ? (errors.lastName = false) : (errors.lastName = true);
+    user.email ? (errors.email = false) : (errors.email = true);
+    user.password ? (errors.password = false) : (errors.password = true);
+
+    setErrors({ ...errors });
+
+    if (Object.values(errors).find((e) => e === true)) {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -47,39 +57,36 @@ export default function SignUp() {
       email: data.get("email"),
       password: data.get("password"),
     };
- 
-    fetch("http://localhost:5000/register", {
-      method: "POST",
 
-      body: JSON.stringify({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        password: user.password,
-      }),
+    validation(user) &&
+      fetch("http://localhost:5000/register", {
+        method: "POST",
 
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-    .then((response) => response.json())
+        body: JSON.stringify({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          password: user.password,
+        }),
 
-      
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
+        .then((response) => {
+          if (response.status !== 200)
+            response.json().then((data) => alert(data.error));
+          navigate("/");
+        })
+        .catch((err) => alert(err));
   };
 
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+        <Box sx={boxStyle}>
+          <Avatar sx={avatarStyle}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
@@ -101,6 +108,7 @@ export default function SignUp() {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  error={errors.firstName}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -111,6 +119,7 @@ export default function SignUp() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  error={errors.lastName}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -121,6 +130,7 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  error={errors.email}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -132,6 +142,7 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  error={errors.password}
                 />
               </Grid>
             </Grid>
@@ -139,23 +150,26 @@ export default function SignUp() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={submitButtonStyle}
             >
               Sign Up
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2"
-                onClick={() => {
-                  navigate("/");
-                }}>
+                <Link
+                  href="#"
+                  variant="body2"
+                  onClick={() => {
+                    navigate("/");
+                  }}
+                >
                   Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
+        <Copyright />
       </Container>
     </ThemeProvider>
   );

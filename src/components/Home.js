@@ -1,105 +1,82 @@
 import * as React from "react";
 import ImgMediaCard from "./ImgMediaCard";
-import Button from "@mui/material/Button";
+import { Button, Box, Typography, Modal, TextField, Grid } from "@mui/material";
 import AddIcon from "@material-ui/icons/Add";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
-import Grid from "@mui/material/Grid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import ResponsiveAppBar from "./AppBar";
-
-
+import useDidMountEffect from "./Hooks";
+import {
+  homeStyle,
+  modelStyle,
+  modelButtonStyle,
+  createButtonStyle,
+} from "../style/Home";
 
 const Home = () => {
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 800,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
   const [cookies] = useCookies(["jwtoken"]);
-  const [open, setOpen] = React.useState(false);
-  const [posts, setPosts] = React.useState([]);
+  const [postInput, setPostInput] = useState({ title: "", content: "" });
+  const [title, setTile] = useState("");
+  const [content, setContent] = useState("");
+  const [open, setOpen] = useState(false);
+  const [posts, setPosts] = useState([]);
   const [postRefresh, setPostRefresh] = useState(true);
+  const [flag, setFlag] = useState();
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = () => {
     handleClose();
-
-    console.log("handle submit");
-    const data = new FormData(event.currentTarget);
-    const post = {
-      title: data.get("title"),
-      content: data.get("content"),
-    };
 
     fetch(`http://localhost:5000/post`, {
       method: "POST",
 
       body: JSON.stringify({
-        title: post.title,
-        content: post.content,
+        title: postInput.title,
+        content: postInput.content,
+        flag: flag,
         uid: sessionStorage.getItem("id"),
       }),
 
       headers: {
         "Content-type": "application/json; charset=UTF-8",
+        Authorization: `${cookies.jwtoken}`,
       },
     })
       .then(() => {
         setPostRefresh(!postRefresh);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert(err));
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch(`http://localhost:5000/post?flag=true`, {
       method: "GET",
     })
       .then((response) => {
         response.json().then((data) => setPosts([...data]));
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert(err));
   }, [postRefresh]);
+
+  useDidMountEffect(() => {
+    handleSubmit();
+  }, [flag]);
 
   return (
     <>
-      <ResponsiveAppBar></ResponsiveAppBar>
-
-      <Box
-        sx={{
-          overflow: "auto",
-          display: "flex",
-          justifyContent: "space-around",
-          marginTop: 10,
-        }}
-      >
-        
-        <Box>
-          {posts ? (
-            posts.map((post) => (
-              <ImgMediaCard
-                call="home"
-                postRefresh={postRefresh}
-                setPostRefresh={setPostRefresh}
-                post={post}
-                key={post.id}
-              ></ImgMediaCard>
-            ))
-          ) : (
-            <div></div>
-          )}
-        </Box>
+      <ResponsiveAppBar />
+      <Box sx={homeStyle}>
+        {posts &&
+          posts.map((post) => (
+            <ImgMediaCard
+              call="home"
+              postRefresh={postRefresh}
+              setPostRefresh={setPostRefresh}
+              post={post}
+              key={post.id}
+            />
+          ))}
       </Box>
       <Modal
         open={open}
@@ -107,11 +84,19 @@ const Home = () => {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={style}>
+        <Box component="form" noValidate sx={modelStyle}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Title
           </Typography>
-          <TextField id="standard-basic" name="title" variant="outlined" />
+          <TextField
+            id="standard-basic"
+            name="title"
+            value={postInput.title}
+            onChange={(e) => {
+              setPostInput({ ...postInput, title: e.target.value });
+            }}
+            variant="outlined"
+          />
           <Typography id="modal-modal-title" variant="h6" sx={{ mt: 2 }}>
             Content
           </Typography>
@@ -121,17 +106,37 @@ const Home = () => {
             rows="3"
             id="standard-basic"
             name="content"
+            value={postInput.content}
+            onChange={(e) => {
+              setPostInput({ ...postInput, content: e.target.value });
+            }}
             variant="outlined"
           />
           <Grid container justifyContent="flex-end">
             <Grid item>
               <Button
-                type="submit"
+                type="button"
+                fullWidth
+                variant="outlined"
+                sx={modelButtonStyle}
+                onClick={() => {
+                  setFlag(false);
+                }}
+              >
+                Draft
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                type="button"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={modelButtonStyle}
+                onClick={() => {
+                  setFlag(true);
+                }}
               >
-                Post
+                Publish
               </Button>
             </Grid>
           </Grid>
@@ -142,13 +147,7 @@ const Home = () => {
         <Button
           typeof="button"
           onClick={handleOpen}
-          sx={{
-            position: "fixed",
-            top: "90%",
-            left: "80vw",
-            marginRight: "35px",
-            fontWeight: "bolder",
-          }}
+          sx={createButtonStyle}
           variant="outlined"
           size="large"
           endIcon={<AddIcon />}

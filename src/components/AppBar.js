@@ -1,27 +1,30 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  Avatar,
+  Button,
+  Tooltip,
+  MenuItem,
+  Container,
+} from "@mui/material";
 import MenuIcon from "@material-ui/icons/Menu";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { typographyStyle, boxStyle, menu } from "../style/AppBar";
 
 const pages = ["Products", "Pricing", "Blog"];
 
 const ResponsiveAppBar = () => {
   const navigate = useNavigate();
-  const [cookies] = useCookies(["jwtoken"]);
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [cookies, removeCookie] = useCookies(["jwtoken"]);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -40,35 +43,23 @@ const ResponsiveAppBar = () => {
   };
 
   const logout = () => {
-    fetch(`http://localhost:5000/logout`, {
-      method: "GET",
-    })
-    .catch((err) => console.log(err));
-
-    console.log(cookies);
-    // removeCookie('jwtoken');
+    console.log("hello");
+    removeCookie("jwtoken");
     sessionStorage.setItem("id", null);
     navigate("/");
   };
 
-  useEffect(() => {
-
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <AppBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
-          >
-            LOGO
+          <Typography variant="h6" noWrap component="div" sx={typographyStyle}>
+            SOCIALLY
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box sx={boxStyle}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -104,27 +95,14 @@ const ResponsiveAppBar = () => {
               ))}
             </Menu>
           </Box>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
-          >
-            LOGO
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
+
+          <Box sx={menu}>
+            <Typography variant="h6" noWrap component="div" sx={boxStyle}>
+              LOGO
+            </Typography>
           </Box>
 
-          {cookies.jwtoken ? (
+          {cookies.jwtoken && (
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -167,8 +145,6 @@ const ResponsiveAppBar = () => {
                 </MenuItem>
               </Menu>
             </Box>
-          ) : (
-            <div></div>
           )}
         </Toolbar>
       </Container>

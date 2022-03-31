@@ -1,70 +1,65 @@
 import * as React from "react";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import { red } from "@mui/material/colors";
+import {
+  Card,
+  CardHeader,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Avatar,
+  IconButton,
+  Button,
+  Typography,
+  Link,
+  Grid,
+  Modal,
+  TextField,
+  Box,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import {
+  modelStyle,
+  divStyle,
+  cardStyle,
+  avatarStyle,
+  menuStyle,
+  submitButtonStyle,
+} from "../style/ImgMediaCrad";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function ImgMediaCard(props) {
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 800,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
   const userID = sessionStorage.getItem("id");
-  const [userName, setUserName] = React.useState();
-  const [postDate, setPostDate] = React.useState();
-  const [title, setTitle] = React.useState(props.post.title);
-  const [content, setContent] = React.useState(props.post.content);
-  const [open, setOpen] = React.useState(false);
+  const [postInfo, setPostInfo] = useState({
+    title: props.post.title,
+    content: props.post.content,
+  });
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     handleClose();
 
-    fetch(
-      `http://localhost:5000/${props.call == "home" ? "post" : "draftpost"}/${props.post.id}`,
-      {
-        method: "PUT",
+    fetch(`http://localhost:5000/post/${props.post.id}`, {
+      method: "PUT",
 
-        body: JSON.stringify({
-          title: title,
-          content: content,
-        }),
+      body: JSON.stringify({
+        title: postInfo.title,
+        content: postInfo.content,
+      }),
 
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      }
-    )
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
       .then(() => {
-        setTitle(props.post.title);
-        setContent(props.post.content);
         props.setPostRefresh(!props.postRefresh);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert(err));
   };
 
   const deletePost = () => {
@@ -72,7 +67,7 @@ export default function ImgMediaCard(props) {
       method: "DELETE",
     })
       .then(() => props.setPostRefresh(!props.postRefresh))
-      .then((err) => console.log(err));
+      .catch((err) => alert(err));
   };
 
   const draftPost = () => {
@@ -86,7 +81,7 @@ export default function ImgMediaCard(props) {
       .then(() => {
         props.setPostRefresh(!props.postRefresh);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert(err));
   };
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -98,28 +93,27 @@ export default function ImgMediaCard(props) {
     setAnchorEl(null);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch(`http://localhost:5000/user?id=${props.post.uid}`)
       .then((response) => {
         response.json().then((data) => {
-          console.log(data);
-          setUserName(data.firstName + " " + data.lastName);
-          setPostDate(data.updatedAt);
+          setPostInfo({
+            ...postInfo,
+            userName: data.firstName + " " + data.lastName,
+            postDate: data.createdAt,
+          });
         });
       })
-      .catch((err) => console.log(err));
-    setTitle(props.post.title);
-    setContent(props.post.content);
+      .catch((err) => alert(err));
   }, [props.post.content, props.post.title]);
 
-  const ITEM_HEIGHT = 48;
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
-      <Card sx={{ minWidth: 700, maxWidth: 1300, margin: 5 }}>
+    <div style={divStyle}>
+      <Card sx={cardStyle}>
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {userName ? userName[0] : userName}
+            <Avatar sx={avatarStyle} aria-label="recipe">
+              {postInfo.userName ? postInfo.userName[0] : "A"}
             </Avatar>
           }
           action={
@@ -144,10 +138,7 @@ export default function ImgMediaCard(props) {
                   open={open1}
                   onClose={handleClose1}
                   PaperProps={{
-                    style: {
-                      maxHeight: ITEM_HEIGHT * 4.5,
-                      width: "20ch",
-                    },
+                    style: menuStyle,
                   }}
                 >
                   <MenuItem
@@ -164,10 +155,11 @@ export default function ImgMediaCard(props) {
               <div></div>
             )
           }
-          title={userName}
-          subheader={postDate}
+          title={postInfo.userName}
+          subheader={postInfo.postDate}
         />
         <CardMedia
+          onClick={() => navigate(`/post/${props.post.id}`)}
           component="img"
           alt="green iguana"
           height="300"
@@ -175,15 +167,13 @@ export default function ImgMediaCard(props) {
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {props.post.title}
+            {postInfo.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {props.post.content}
+            {postInfo.content}
           </Typography>
         </CardContent>
         <CardActions>
-          <Button size="small">Share</Button>
-          <Button size="small">Learn More</Button>
           {userID == props.post.uid ? (
             <Grid container justifyContent="flex-end">
               <Grid item>
@@ -218,16 +208,21 @@ export default function ImgMediaCard(props) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={style}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+          sx={modelStyle}
+        >
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Title
           </Typography>
           <TextField
             id="standard-basic"
             name="title"
-            value={title}
+            value={postInfo.title}
             onChange={(e) => {
-              setTitle(e.target.value);
+              setPostInfo({ ...postInfo, title: e.target.value });
             }}
             variant="outlined"
           />
@@ -240,9 +235,9 @@ export default function ImgMediaCard(props) {
             rows="3"
             id="standard-basic"
             name="content"
-            value={content}
+            value={postInfo.content}
             onChange={(e) => {
-              setContent(e.target.value);
+              setPostInfo({ ...postInfo, content: e.target.value });
             }}
             variant="outlined"
           />
@@ -252,7 +247,7 @@ export default function ImgMediaCard(props) {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={submitButtonStyle}
               >
                 Update
               </Button>
