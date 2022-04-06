@@ -16,7 +16,12 @@ import MenuIcon from "@material-ui/icons/Menu";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
-import { typographyStyle, boxStyle, menu } from "../style/AppBar";
+import {
+  typographyStyle,
+  boxStyle,
+  logoStyle,
+  menuStyle,
+} from "../style/AppBar";
 
 const pages = ["Products", "Pricing", "Blog"];
 
@@ -84,9 +89,7 @@ const ResponsiveAppBar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
+              sx={menuStyle}
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
@@ -96,7 +99,7 @@ const ResponsiveAppBar = () => {
             </Menu>
           </Box>
 
-          <Box sx={menu}>
+          <Box sx={logoStyle}>
             <Typography variant="h6" noWrap component="div" sx={boxStyle}>
               LOGO
             </Typography>

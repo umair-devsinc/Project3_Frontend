@@ -24,18 +24,24 @@ import {
   avatarStyle,
   menuStyle,
   submitButtonStyle,
+  commentStyle,
 } from "../style/ImgMediaCrad";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import AlignItemsList from "./AlignItemsList";
+import MuiModal from "./Modal";
 
-export default function ImgMediaCard(props) {
+const ImgMediaCard = (props) => {
   const userID = sessionStorage.getItem("id");
   const [postInfo, setPostInfo] = useState({
     title: props.post.title,
     content: props.post.content,
   });
+  const [comment, setComment] = useState("");
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open1 = Boolean(anchorEl);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const navigate = useNavigate();
@@ -62,11 +68,32 @@ export default function ImgMediaCard(props) {
       .catch((err) => alert(err));
   };
 
+  const commentPost = () => {
+    fetch(`http://localhost:5000/comment  `, {
+      method: "POST",
+
+      body: JSON.stringify({
+        text: comment,
+        uid: sessionStorage.getItem("id"),
+        postId: props.post.id,
+      }),
+
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then(() => {
+        props.setPostRefresh(!props.postRefresh);
+        setComment("");
+      })
+      .catch((err) => alert(err));
+  };
+
   const deletePost = () => {
     fetch(`http://localhost:5000/post?id=${props.post.id}`, {
       method: "DELETE",
     })
-      .then(() => props.setPostRefresh(!props.postRefresh))
+      .then(() => navigate(`/home`))
       .catch((err) => alert(err));
   };
 
@@ -79,13 +106,11 @@ export default function ImgMediaCard(props) {
       },
     })
       .then(() => {
-        props.setPostRefresh(!props.postRefresh);
+        navigate(`/home`);
       })
       .catch((err) => alert(err));
   };
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open1 = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -100,7 +125,7 @@ export default function ImgMediaCard(props) {
           setPostInfo({
             ...postInfo,
             userName: data.firstName + " " + data.lastName,
-            postDate: data.createdAt,
+            postDate: data.createdAt.split("T")[0],
           });
         });
       })
@@ -147,7 +172,7 @@ export default function ImgMediaCard(props) {
                       draftPost();
                     }}
                   >
-                    {props.call == "home" ? "Drafts" : "Publish"}
+                    {props.post.flag ? "Drafts" : "Publish"}
                   </MenuItem>
                 </Menu>
               </div>
@@ -162,7 +187,7 @@ export default function ImgMediaCard(props) {
           onClick={() => navigate(`/post/${props.post.id}`)}
           component="img"
           alt="green iguana"
-          height="300"
+          height="100"
           image="https://images.unsplash.com/photo-1485182708500-e8f1f318ba72?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8c29jaWFsfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
         />
         <CardContent>
@@ -173,6 +198,25 @@ export default function ImgMediaCard(props) {
             {postInfo.content}
           </Typography>
         </CardContent>
+        <Box sx={commentStyle}>
+          <TextField
+            fullWidth
+            id="input-with-sx"
+            label="Type here ..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            variant="standard"
+          />
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            onClick={commentPost}
+          >
+            Post
+          </Button>
+        </Box>
+        <AlignItemsList comments={props.post.Comments}></AlignItemsList>
         <CardActions>
           {userID == props.post.uid ? (
             <Grid container justifyContent="flex-end">
@@ -202,7 +246,15 @@ export default function ImgMediaCard(props) {
           )}
         </CardActions>
       </Card>
-      <Modal
+      <MuiModal
+        postInfo={postInfo}
+        setPostInfo={setPostInfo}
+        handleSubmit={handleSubmit}
+        handleClose={handleClose}
+        handleOpen={handleOpen}
+        open={open}
+      />
+      {/* <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
@@ -254,7 +306,9 @@ export default function ImgMediaCard(props) {
             </Grid>
           </Grid>
         </Box>
-      </Modal>
+      </Modal> */}
     </div>
   );
-}
+};
+
+export default ImgMediaCard;

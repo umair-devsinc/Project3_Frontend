@@ -4,7 +4,7 @@ import ImgMediaCard from "./ImgMediaCard";
 
 const Post = () => {
   let { id } = useParams();
-  const [post, setPost] = useState({});
+  const [post, setPost] = useState();
   const [postRefresh, setPostRefresh] = useState(true);
 
   useEffect(() => {
@@ -15,16 +15,19 @@ const Post = () => {
         response.json().then((data) => setPost(data));
       })
       .catch((err) => alert(err));
-  }, []);
+  }, [postRefresh]);
 
   return (
-    <ImgMediaCard
-      call="post"
-      postRefresh={postRefresh}
-      setPostRefresh={setPostRefresh}
-      post={post}
-      key={post.id}
-    />
+    <>
+      {post && (
+        <ImgMediaCard
+          postRefresh={postRefresh}
+          setPostRefresh={setPostRefresh}
+          post={post}
+          key={post.id}
+        />
+      )}
+    </>
   );
 };
 

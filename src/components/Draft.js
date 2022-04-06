@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import ImgMediaCard from "./ImgMediaCard";
+import ImgCard from "./Card";
 import ResponsiveAppBar from "./AppBar";
-import { Box } from "@mui/material";
+import { Box, Pagination } from "@mui/material";
 import { draftStyle } from "../style/Drafts";
 
 const Draft = () => {
@@ -9,14 +9,9 @@ const Draft = () => {
   const [postRefresh, setPostRefresh] = useState(true);
 
   useEffect(() => {
-    fetch(
-      `http://localhost:5000/post?id=${sessionStorage.getItem(
-        "id"
-      )}&&flag=false`,
-      {
-        method: "GET",
-      }
-    )
+    fetch(`http://localhost:5000/post/0?id=${sessionStorage.getItem("id")}`, {
+      method: "GET",
+    })
       .then((response) => {
         response.json().then((data) => setPosts([...data]));
       })
@@ -29,13 +24,13 @@ const Draft = () => {
       <Box sx={draftStyle}>
         {posts &&
           posts.map((post) => (
-            <ImgMediaCard
+            <ImgCard
               call="draft"
               postRefresh={postRefresh}
               setPostRefresh={setPostRefresh}
               post={post}
               key={post.id}
-            ></ImgMediaCard>
+            />
           ))}
       </Box>
     </>
