@@ -1,16 +1,15 @@
 import "./App.css";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
-import SignIn from "./components/SignIn";
-import SignUp from "./components/SignUp";
-import Home from "./components/Home";
-import Draft from "./components/Draft";
-import Post from "./components/Post";
-import { useCookies } from "react-cookie";
+import SignIn from "./views/SignIn";
+import SignUp from "./views/SignUp";
+import Home from "./views/Home";
+import Draft from "./views/Draft";
+import Post from "./views/Post";
 
 const ProtectedRoute = ({ redirectPath = "/" }) => {
-  const [cookies] = useCookies(["jwtoken"]);
+  const userID = sessionStorage.getItem("id");
 
-  if (!cookies.jwtoken) {
+  if (!userID) {
     return <Navigate to={redirectPath} replace />;
   }
 

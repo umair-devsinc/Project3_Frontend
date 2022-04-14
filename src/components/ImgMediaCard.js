@@ -31,12 +31,15 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AlignItemsList from "./AlignItemsList";
 import MuiModal from "./Modal";
+import { editPost, commentP, deleteP, draftP } from "../apis/postApi";
 
 const ImgMediaCard = (props) => {
   const userID = sessionStorage.getItem("id");
   const [postInfo, setPostInfo] = useState({
     title: props.post.title,
     content: props.post.content,
+    userName: props.post.User.firstName + " " + props.post.User.lastName,
+    postDate: props.post.User.createdAt.split("T")[0],
   });
   const [comment, setComment] = useState("");
   const [open, setOpen] = useState(false);
@@ -50,18 +53,7 @@ const ImgMediaCard = (props) => {
     event.preventDefault();
     handleClose();
 
-    fetch(`http://localhost:5000/post/${props.post.id}`, {
-      method: "PUT",
-
-      body: JSON.stringify({
-        title: postInfo.title,
-        content: postInfo.content,
-      }),
-
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
+    editPost(props.post.id, postInfo, props.post.flag)
       .then(() => {
         props.setPostRefresh(!props.postRefresh);
       })
@@ -69,19 +61,7 @@ const ImgMediaCard = (props) => {
   };
 
   const commentPost = () => {
-    fetch(`http://localhost:5000/comment  `, {
-      method: "POST",
-
-      body: JSON.stringify({
-        text: comment,
-        uid: sessionStorage.getItem("id"),
-        postId: props.post.id,
-      }),
-
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
+    commentP(props.post.id, comment)
       .then(() => {
         props.setPostRefresh(!props.postRefresh);
         setComment("");
@@ -90,21 +70,14 @@ const ImgMediaCard = (props) => {
   };
 
   const deletePost = () => {
-    fetch(`http://localhost:5000/post?id=${props.post.id}`, {
-      method: "DELETE",
-    })
+    deleteP(props.post.id)
       .then(() => navigate(`/home`))
       .catch((err) => alert(err));
   };
 
   const draftPost = () => {
-    fetch(`http://localhost:5000/dPost/${props.post.id}/${!props.post.flag}`, {
-      method: "PUT",
-
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
+    // draftP(props.post.id, props.post.flag)
+    editPost(props.post.id, postInfo, !props.post.flag)
       .then(() => {
         navigate(`/home`);
       })
@@ -117,20 +90,6 @@ const ImgMediaCard = (props) => {
   const handleClose1 = () => {
     setAnchorEl(null);
   };
-
-  useEffect(() => {
-    fetch(`http://localhost:5000/user?id=${props.post.uid}`)
-      .then((response) => {
-        response.json().then((data) => {
-          setPostInfo({
-            ...postInfo,
-            userName: data.firstName + " " + data.lastName,
-            postDate: data.createdAt.split("T")[0],
-          });
-        });
-      })
-      .catch((err) => alert(err));
-  }, [props.post.content, props.post.title]);
 
   return (
     <div style={divStyle}>
@@ -254,59 +213,6 @@ const ImgMediaCard = (props) => {
         handleOpen={handleOpen}
         open={open}
       />
-      {/* <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          noValidate
-          sx={modelStyle}
-        >
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Title
-          </Typography>
-          <TextField
-            id="standard-basic"
-            name="title"
-            value={postInfo.title}
-            onChange={(e) => {
-              setPostInfo({ ...postInfo, title: e.target.value });
-            }}
-            variant="outlined"
-          />
-          <Typography id="modal-modal-title" variant="h6" sx={{ mt: 2 }}>
-            Content
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows="3"
-            id="standard-basic"
-            name="content"
-            value={postInfo.content}
-            onChange={(e) => {
-              setPostInfo({ ...postInfo, content: e.target.value });
-            }}
-            variant="outlined"
-          />
-          <Grid container justifyContent="flex-end">
-            <Grid item>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={submitButtonStyle}
-              >
-                Update
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-      </Modal> */}
     </div>
   );
 };

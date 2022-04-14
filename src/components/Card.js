@@ -31,35 +31,13 @@ import { useEffect, useState } from "react";
 import AlignItemsList from "./AlignItemsList";
 
 export default function ImgCard(props) {
-  const userID = sessionStorage.getItem("id");
   const [postInfo, setPostInfo] = useState({
     title: props.post.title,
     content: props.post.content,
+    userName: props.post.User.firstName + " " + props.post.User.lastName,
+    postDate: props.post.User.createdAt.split("T")[0],
   });
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open1 = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose1 = () => {
-    setAnchorEl(null);
-  };
-
-  useEffect(() => {
-    fetch(`http://localhost:5000/user?id=${props.post.uid}`)
-      .then((response) => {
-        response.json().then((data) => {
-          setPostInfo({
-            ...postInfo,
-            userName: data.firstName + " " + data.lastName,
-            postDate: data.createdAt.split("T")[0],
-          });
-        });
-      })
-      .catch((err) => alert(err));
-  }, [props.post.content, props.post.title]);
 
   return (
     <div style={divStyle}>

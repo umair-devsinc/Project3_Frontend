@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
-import ImgCard from "./Card";
-import ResponsiveAppBar from "./AppBar";
+import ImgCard from "../components/Card";
+import ResponsiveAppBar from "../components/AppBar";
 import { Box, Pagination } from "@mui/material";
 import { draftStyle } from "../style/Drafts";
-
+import { getDraftPosts } from "../apis/postApi";
 const Draft = () => {
   const [posts, setPosts] = useState([]);
   const [postRefresh, setPostRefresh] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/post/0?id=${sessionStorage.getItem("id")}`, {
-      method: "GET",
-    })
+    getDraftPosts()
       .then((response) => {
-        response.json().then((data) => setPosts([...data]));
+        setPosts([...response.data]);
       })
       .catch((err) => alert(err));
   }, [postRefresh]);

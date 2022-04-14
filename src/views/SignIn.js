@@ -15,7 +15,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { boxStyle, submitButtonStyle, avatarStyle } from "../style/SignUp";
 import Copyright from "../utils/Copyright";
-
+import { userSignin } from "../apis/userApi";
 const theme = createTheme();
 
 export default function SignIn() {
@@ -42,22 +42,15 @@ export default function SignIn() {
       password: data.get("password"),
     };
     validation(user) &&
-      fetch(
-        `http://localhost:5000/signIn?email=${user.email}&&password=${user.password}`,
-        { credentials: "include" }
-      )
-        .then((response) => {
-          if (response.status === 200) {
-            response
-              .json()
-              .then((data) => sessionStorage.setItem("id", data.id));
+      userSignin(user).then((response) => {
+        if (response.status === 200) {
+          sessionStorage.setItem("id", response.data.id);
 
-            navigate("/home");
-          } else {
-            response.json().then((data) => alert(data.error));
-          }
-        })
-        .catch((err) => alert(err));
+          navigate("/home");
+        } else {
+          response.json().then((data) => alert(data.error));
+        }
+      });
   };
 
   return (

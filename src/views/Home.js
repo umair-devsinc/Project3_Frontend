@@ -1,5 +1,5 @@
 import * as React from "react";
-import ImgCard from "./Card";
+import ImgCard from "../components/Card";
 import {
   Button,
   Box,
@@ -11,9 +11,10 @@ import {
 } from "@mui/material";
 import AddIcon from "@material-ui/icons/Add";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { useCookies } from "react-cookie";
-import ResponsiveAppBar from "./AppBar";
-import useDidMountEffect from "./Hooks";
+import ResponsiveAppBar from "../components/AppBar";
+import useDidMountEffect from "../components/Hooks";
+import { isLogin } from "../utils/Auth";
+import { savePost, postCount, getPosts } from "../apis/postApi";
 import {
   homeStyle,
   modelStyle,
@@ -23,12 +24,10 @@ import {
 } from "../style/Home";
 
 const Home = () => {
-  const [cookies] = useCookies(["jwtoken"]);
   const [postInfo, setPostInfo] = useState({ title: "", content: "" });
   const [open, setOpen] = useState(false);
   const [posts, setPosts] = useState();
   const [postRefresh, setPostRefresh] = useState(true);
-  const [flag, setFlag] = useState();
   const [count, setCount] = useState(0);
   const [offset, setOffset] = useState(0);
   const handleOpen = () => setOpen(true);
@@ -37,49 +36,40 @@ const Home = () => {
   const handleSubmit = (flag) => {
     handleClose();
 
-    fetch(`http://localhost:5000/post`, {
-      method: "POST",
-
-      body: JSON.stringify({
-        title: postInfo.title,
-        content: postInfo.content,
-        flag: flag,
-        uid: sessionStorage.getItem("id"),
-      }),
-
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        Authorization: `${cookies.jwtoken}`,
-      },
-    })
-      .then(() => {
+    savePost(flag, postInfo)
+      .then((response) => {
         setPostRefresh(!postRefresh);
+        //setPosts([...posts, response.data]);
         setPostInfo({ ...postInfo, title: "", content: "" });
       })
       .catch((err) => alert(err));
   };
 
+  //for talha bhai
   useEffect(() => {
-    fetch(`http://localhost:5000/postCount`, {
-      method: "GET",
-    })
+    postCount()
       .then((response) => {
-        response.json().then((data) => {
-          setCount(Math.ceil(data.count / 2));
-        });
+        setCount(Math.ceil(response.data.count / 2));
       })
       .catch((err) => alert(err));
 
-    fetch(`http://localhost:5000/post/${offset}?flag=true`, {
-      method: "GET",
-    })
+    getPosts(offset)
       .then((response) => {
-        response.json().then((data) => {
-          setPosts([...data]);
-        });
+        setPosts([...response.data]);
       })
       .catch((err) => alert(err));
   }, [postRefresh, offset]);
+  // useEffect(() => {
+  //   fetch(`http://localhost:5000/post/${offset}?flag=true`, {
+  //     method: "GET",
+  //   })
+  //     .then((response) => {
+  //       response.json().then((data) => {
+  //         setPosts([...data]);
+  //       });
+  //     })
+  //     .catch((err) => alert(err));
+  // }, [postRefresh, offset]);
 
   // useDidMountEffect(() => {
   //   handleSubmit();
@@ -178,7 +168,7 @@ const Home = () => {
         </Box>
       </Modal>
 
-      {cookies.jwtoken ? (
+      {isLogin() ? (
         <Button
           typeof="button"
           onClick={handleOpen}

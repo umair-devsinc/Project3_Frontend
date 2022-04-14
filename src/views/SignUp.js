@@ -21,6 +21,7 @@ import {
   avatarStyle,
   copyRightStyle,
 } from "../style/SignUp";
+import { userSignup } from "../apis/userApi";
 
 const theme = createTheme();
 
@@ -59,20 +60,7 @@ export default function SignUp() {
     };
 
     validation(user) &&
-      fetch("http://localhost:5000/register", {
-        method: "POST",
-
-        body: JSON.stringify({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          password: user.password,
-        }),
-
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      })
+      userSignup(user)
         .then((response) => {
           if (response.status !== 200)
             response.json().then((data) => alert(data.error));
