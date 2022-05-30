@@ -9,7 +9,7 @@ const modelStyle = {
   boxShadow: 24,
   p: 4,
 };
-const ITEM_HEIGHT = 48;
+const ITEM_HEIGHT = 40;
 
 const divStyle = { display: "flex", justifyContent: "center" };
 const cardStyle = { minWidth: 700, maxWidth: 1300, margin: 5 };
@@ -19,7 +19,11 @@ const menuStyle = {
   width: "20ch",
 };
 const submitButtonStyle = { mt: 3, mb: 2, me: 2 };
-
+const commentStyle = {
+  display: "flex",
+  alignItems: "flex-end",
+  padding: "20px",
+};
 module.exports = {
   modelStyle,
   divStyle,
@@ -27,4 +31,5 @@ module.exports = {
   avatarStyle,
   menuStyle,
   submitButtonStyle,
+  commentStyle,
 };

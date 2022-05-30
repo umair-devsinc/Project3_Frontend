@@ -25,9 +25,17 @@ const createButtonStyle = {
   marginRight: "35px",
   fontWeight: "bolder",
 };
+const divStyle = {
+  display: "flex",
+  justifyContent: "center",
+  marginTop: "10px",
+  marginBottom: "20px",
+};
+
 module.exports = {
   homeStyle,
   modelStyle,
   modelButtonStyle,
   createButtonStyle,
+  divStyle,
 };

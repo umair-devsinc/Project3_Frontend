@@ -14,15 +14,18 @@ import {
 } from "@mui/material";
 import MenuIcon from "@material-ui/icons/Menu";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
-import { typographyStyle, boxStyle, menu } from "../style/AppBar";
-
+import {
+  typographyStyle,
+  boxStyle,
+  logoStyle,
+  menuStyle,
+} from "../style/AppBar";
+import { isLogin, logout } from "../utils/Auth";
 const pages = ["Products", "Pricing", "Blog"];
 
 const ResponsiveAppBar = () => {
   const navigate = useNavigate();
-  const [cookies, removeCookie] = useCookies(["jwtoken"]);
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -40,13 +43,6 @@ const ResponsiveAppBar = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
-  };
-
-  const logout = () => {
-    console.log("hello");
-    removeCookie("jwtoken");
-    sessionStorage.setItem("id", null);
-    navigate("/");
   };
 
   useEffect(() => {}, []);
@@ -84,9 +80,7 @@ const ResponsiveAppBar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
+              sx={menuStyle}
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
@@ -96,13 +90,13 @@ const ResponsiveAppBar = () => {
             </Menu>
           </Box>
 
-          <Box sx={menu}>
+          <Box sx={logoStyle}>
             <Typography variant="h6" noWrap component="div" sx={boxStyle}>
               LOGO
             </Typography>
           </Box>
 
-          {cookies.jwtoken && (
+          {isLogin() && (
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -138,7 +132,7 @@ const ResponsiveAppBar = () => {
                   key="Logout"
                   onClick={() => {
                     handleCloseUserMenu();
-                    logout();
+                    logout(navigate);
                   }}
                 >
                   <Typography textAlign="center">Logout</Typography>

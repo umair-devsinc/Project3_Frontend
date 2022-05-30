@@ -1,75 +1,88 @@
 import * as React from "react";
-import ImgMediaCard from "./ImgMediaCard";
-import { Button, Box, Typography, Modal, TextField, Grid } from "@mui/material";
+import ImgCard from "../components/Card";
+import {
+  Button,
+  Box,
+  Typography,
+  Modal,
+  TextField,
+  Grid,
+  Pagination,
+} from "@mui/material";
 import AddIcon from "@material-ui/icons/Add";
-import { useState, useEffect } from "react";
-import { useCookies } from "react-cookie";
-import ResponsiveAppBar from "./AppBar";
-import useDidMountEffect from "./Hooks";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import ResponsiveAppBar from "../components/AppBar";
+import useDidMountEffect from "../components/Hooks";
+import { isLogin } from "../utils/Auth";
+import { savePost, postCount, getPosts } from "../apis/postApi";
 import {
   homeStyle,
   modelStyle,
   modelButtonStyle,
   createButtonStyle,
+  divStyle,
 } from "../style/Home";
 
 const Home = () => {
-  const [cookies] = useCookies(["jwtoken"]);
-  const [postInput, setPostInput] = useState({ title: "", content: "" });
-  const [title, setTile] = useState("");
-  const [content, setContent] = useState("");
+  const [postInfo, setPostInfo] = useState({ title: "", content: "" });
   const [open, setOpen] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState();
   const [postRefresh, setPostRefresh] = useState(true);
-  const [flag, setFlag] = useState();
+  const [count, setCount] = useState(0);
+  const [offset, setOffset] = useState(0);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = (flag) => {
     handleClose();
 
-    fetch(`http://localhost:5000/post`, {
-      method: "POST",
-
-      body: JSON.stringify({
-        title: postInput.title,
-        content: postInput.content,
-        flag: flag,
-        uid: sessionStorage.getItem("id"),
-      }),
-
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        Authorization: `${cookies.jwtoken}`,
-      },
-    })
-      .then(() => {
+    savePost(flag, postInfo)
+      .then((response) => {
         setPostRefresh(!postRefresh);
+        //setPosts([...posts, response.data]);
+        setPostInfo({ ...postInfo, title: "", content: "" });
       })
       .catch((err) => alert(err));
   };
 
+  //for talha bhai
   useEffect(() => {
-    fetch(`http://localhost:5000/post?flag=true`, {
-      method: "GET",
-    })
+    postCount()
       .then((response) => {
-        response.json().then((data) => setPosts([...data]));
+        setCount(Math.ceil(response.data.count / 2));
       })
       .catch((err) => alert(err));
-  }, [postRefresh]);
 
-  useDidMountEffect(() => {
-    handleSubmit();
-  }, [flag]);
+    getPosts(offset)
+      .then((response) => {
+        setPosts([...response.data]);
+      })
+      .catch((err) => alert(err));
+  }, [postRefresh, offset]);
+  // useEffect(() => {
+  //   fetch(`http://localhost:5000/post/${offset}?flag=true`, {
+  //     method: "GET",
+  //   })
+  //     .then((response) => {
+  //       response.json().then((data) => {
+  //         setPosts([...data]);
+  //       });
+  //     })
+  //     .catch((err) => alert(err));
+  // }, [postRefresh, offset]);
+
+  // useDidMountEffect(() => {
+  //   handleSubmit();
+  // }, []);
 
   return (
     <>
       <ResponsiveAppBar />
+
       <Box sx={homeStyle}>
         {posts &&
           posts.map((post) => (
-            <ImgMediaCard
+            <ImgCard
               call="home"
               postRefresh={postRefresh}
               setPostRefresh={setPostRefresh}
@@ -78,6 +91,18 @@ const Home = () => {
             />
           ))}
       </Box>
+      {count > 0 && (
+        <div style={divStyle}>
+          <Pagination
+            onChange={(e, val) => {
+              setOffset(val * 2 - 2);
+            }}
+            count={count}
+            color="primary"
+          />
+        </div>
+      )}
+
       <Modal
         open={open}
         onClose={handleClose}
@@ -91,9 +116,9 @@ const Home = () => {
           <TextField
             id="standard-basic"
             name="title"
-            value={postInput.title}
+            value={postInfo.title}
             onChange={(e) => {
-              setPostInput({ ...postInput, title: e.target.value });
+              setPostInfo({ ...postInfo, title: e.target.value });
             }}
             variant="outlined"
           />
@@ -106,9 +131,9 @@ const Home = () => {
             rows="3"
             id="standard-basic"
             name="content"
-            value={postInput.content}
+            value={postInfo.content}
             onChange={(e) => {
-              setPostInput({ ...postInput, content: e.target.value });
+              setPostInfo({ ...postInfo, content: e.target.value });
             }}
             variant="outlined"
           />
@@ -120,7 +145,7 @@ const Home = () => {
                 variant="outlined"
                 sx={modelButtonStyle}
                 onClick={() => {
-                  setFlag(false);
+                  handleSubmit(false);
                 }}
               >
                 Draft
@@ -133,7 +158,7 @@ const Home = () => {
                 variant="contained"
                 sx={modelButtonStyle}
                 onClick={() => {
-                  setFlag(true);
+                  handleSubmit(true);
                 }}
               >
                 Publish
@@ -143,7 +168,7 @@ const Home = () => {
         </Box>
       </Modal>
 
-      {cookies.jwtoken ? (
+      {isLogin() ? (
         <Button
           typeof="button"
           onClick={handleOpen}
